@@ -6,7 +6,7 @@ import google.generativeai as genai
 from tqdm import tqdm
 
 data= pd.read_csv("cleaned_judgements.csv")
-genai.configure(api_key="AIzaSyDVhtEzhMMNqVWM1nGaA7OotMs-0cw89jA")
+genai.configure(api_key="_____")
 
 '''def get_embeddings(text):
     data= pd.read_csv("cleaned_judgements.csv")
