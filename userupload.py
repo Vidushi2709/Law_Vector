@@ -1,4 +1,3 @@
-import streamlit as st
 import pdfplumber
 from transformers import pipeline
 import requests
@@ -34,7 +33,7 @@ Answer only those questions that are directly related to the case summary provid
 - Legal claims and allegations
 - Defense arguments
 - Court findings and verdict
-- Legal implications or concepts mentioned in the case
+- Legal implications or concepts mentioned in the case, following the Indian Penal Code (IPC) where applicable
 
 Do Not Entertain:
 - Any questions unrelated to the uploaded case (e.g., current events, politics, celebrities, legal advice on a different topic, etc.)
@@ -52,12 +51,12 @@ Additional information:
 - Do not generate responses based on assumptions beyond the case content.
 - Never give medical, financial, or personal legal advice.
 - If the question is ambiguous or unclear, ask the user to clarify it in the context of the uploaded case.
+- All legal interpretations or explanations should be consistent with the Indian Penal Code (IPC) and relevant Indian law.
 
 ---
-You are not a general-purpose assistant. You are acting solely as a legal case analyst based on the provided case summary.
+You are not a general-purpose assistant. You are acting solely as a legal case analyst based on the provided case summary, adhering strictly to IPC guidelines.
 
 """
-
 #passing prompt to perplexity
 def query_pass(prompt):
     API_URL = "https://api.perplexity.ai/completion"
@@ -82,29 +81,3 @@ def query_pass(prompt):
             return f"Unexpected response format: {res_json}"
     except Exception as e:
         return f"Failed to parse response: {str(e)}"
-
-
-
-#streamlit
-st.title("📄 Legal Case Assistant")
-
-uploaded_file = st.file_uploader("Upload a legal case PDF", type="pdf")
-
-if uploaded_file:
-    with st.spinner("Extracting and summarizing..."):
-        case_text = extract_text(uploaded_file)
-        summary = summarize(case_text)
-
-    st.subheader("Case key Summary")
-    st.write(summary)
-
-    user_q = st.text_input("Ask questions about the case:")
-    if user_q:
-        prompt = prompting(summary, user_q)
-        answer = query_pass(prompt)
-        st.markdown("### 🧠 LEGAL BOT")
-        st.write(answer)
-
-    st.markdown("---")
-    st.info("Consider donating your case")
-
