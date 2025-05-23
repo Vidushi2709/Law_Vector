@@ -1,6 +1,8 @@
 import faiss 
 import pandas as pd
 from sentence_transformers import SentenceTransformer
+import requests
+import os
 
 
 #index and meta data
@@ -27,3 +29,37 @@ def search_law_cases(query, k=5):
         }
         results.append(result)
     return results
+
+#give the results to perplexity api for bot function
+
+def ask_about_cases(user_ask, law_cases):
+    api_key= os.getenv('PERPLEXITY_API_KEY')
+    if not api_key:
+        raise EnvironmentError("PERPLEXITY_API_KEY is not set in environment variables.")
+
+    contxt= "\n\n".join([
+        f"CASE NAME: {case['case_name']}\n JUDGEMENT: {case['judgement']}"
+        for case in law_cases
+    ])
+
+    message=[
+        {"role": "system", "content": ""},
+        {"role": "user", "content": f"{contxt}\n\nUser's Question: {user_ask}"}
+    ]
+
+    header= {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": "sonar-pro",
+        "messages": message,
+        "temperature": 0.7,
+        "max_tokens": 1024
+    }
+
+    
+    response = requests.post("https://api.perplexity.ai/chat/completions", headers=header, json=payload)
+    response.raise_for_status()
+    return response.json()["choices"][0]["message"]["content"]
